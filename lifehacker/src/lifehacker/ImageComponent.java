@@ -9,8 +9,8 @@ import javax.swing.JComponent;
 
 public class ImageComponent extends JComponent
 {
-	private static int IMAGE_WIDTH = 320;	// the final width for the image
-	private static int IMAGE_HEIGHT = 180;	// the final height for the image
+	private static int IMAGE_WIDTH = 420;	// the final width for the image
+	private static int IMAGE_HEIGHT = 280;	// the final height for the image
 	
 	// these variables are used to make sure that each side of the image are
 	// within the JPanel bounds
@@ -87,7 +87,41 @@ public class ImageComponent extends JComponent
 
 	public static void setIMAGE_HEIGHT(int iMAGE_HEIGHT) {
 		IMAGE_HEIGHT = iMAGE_HEIGHT;
+	}
+
+	public int getXlocationLeft() {
+		return xlocationLeft;
+	}
+
+	public void setXlocationLeft(int xlocationLeft) {
+		this.xlocationLeft = xlocationLeft;
+	}
+
+	public int getXlocationRight() {
+		return xlocationRight;
+	}
+
+	public void setXlocationRight(int xlocationRight) {
+		this.xlocationRight = xlocationRight;
+	}
+
+	public int getYlocationTop() {
+		return ylocationTop;
+	}
+
+	public void setYlocationTop(int ylocationTop) {
+		this.ylocationTop = ylocationTop;
+	}
+
+	public int getYlocationDown() {
+		return ylocationDown;
+	}
+
+	public void setYlocationDown(int ylocationDown) {
+		this.ylocationDown = ylocationDown;
 	}	
+	
+	
 	
 	
 }

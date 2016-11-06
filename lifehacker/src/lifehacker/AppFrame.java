@@ -1,10 +1,13 @@
 package lifehacker;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
+import java.awt.Desktop;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -19,17 +22,17 @@ import javax.swing.border.TitledBorder;
 public class AppFrame extends JFrame
 {
 	JPanel mainPanel, titlePanel, buttonPanel, nextBPanel, lastBPanel,
-				imagePanel;
+				imagePanel, linkBPanel;
 	JLabel titleLabel, titleLabelText;
 	JTextArea outputArea;
-	JButton nextButton, lastButton;
+	JButton nextButton, lastButton, linkButton;
 	JScrollPane scroll;
 	ActionListener blistener;
 	ImageComponent imageDisplay;
 	int entryLevel = 0;
 	ArrayList<Entry> entries;
 	
-	String header = "", summary = "", date = "", link = "";
+	private String header = "", summary = "", date = "", link = "";
 	
 	AppFrame()
 	{
@@ -70,13 +73,14 @@ public class AppFrame extends JFrame
 		
 		titlePanel = new JPanel();
 		buttonPanel = new JPanel();
-		buttonPanel.setLayout(new GridLayout(2,1));
+		buttonPanel.setLayout(new GridLayout(3,1));
 		nextBPanel = new JPanel();
 		lastBPanel = new JPanel();
+		linkBPanel = new JPanel();
 		
-		imagePanel = new JPanel(new BorderLayout());
+		imagePanel = new JPanel(new GridLayout(1,1));
 		imagePanel.setBorder(new TitledBorder(new EtchedBorder(), "Image"));
-		imagePanel.add(imageDisplay, BorderLayout.CENTER);
+		imagePanel.add(imageDisplay);
 		
 		mainPanel.add(imagePanel, BorderLayout.CENTER);
 	}
@@ -121,11 +125,16 @@ public class AppFrame extends JFrame
 		lastButton = new JButton("Last");
 		lastButton.addActionListener(blistener);
 		
+		linkButton = new JButton("Open");
+		linkButton.addActionListener(blistener);
+		
 		nextBPanel.add(nextButton);
 		lastBPanel.add(lastButton);
+		linkBPanel.add(linkButton);
 		
 		buttonPanel.add(nextBPanel);
 		buttonPanel.add(lastBPanel);
+		buttonPanel.add(linkBPanel);
 		
 		mainPanel.add(buttonPanel, BorderLayout.EAST);
 	}
@@ -170,6 +179,39 @@ public class AppFrame extends JFrame
 					
 					imageDisplay.changeImage("image" + entryLevel + ".jpg");
 				}
+			}
+			else if(e.getActionCommand().equals("Open"))
+			{
+				String url = link;
+				
+				//System.out.println(Desktop.isDesktopSupported());
+				
+				if(Desktop.isDesktopSupported())
+				{
+		            Desktop desktop = Desktop.getDesktop();
+		            try 
+		            {
+		                desktop.browse(new URI(url));
+		            } 
+		            catch (IOException | URISyntaxException ex) 
+		            {
+		                // TODO Auto-generated catch block
+		                ex.printStackTrace();
+		            }
+		        }
+				else
+				{
+		            Runtime runtime = Runtime.getRuntime();
+		            try 
+		            {
+		                runtime.exec("xdg-open " + url);
+		            } 
+		            catch (IOException ex) 
+		            {
+		                // TODO Auto-generated catch block
+		                ex.printStackTrace();
+		            }
+		        }
 			}
 			
 		}
