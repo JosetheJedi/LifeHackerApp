@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Stack;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -21,49 +22,68 @@ import javax.swing.border.TitledBorder;
 
 public class AppFrame extends JFrame
 {
-	JPanel mainPanel, titlePanel, buttonPanel, nextBPanel, lastBPanel,
-				imagePanel, linkBPanel;
+	JPanel mainPanel, titlePanel, buttonPanel, nextBPanel, lastBPanel, nextPBPanel,
+				imagePanel, linkBPanel, lastPBPanel;
 	JLabel titleLabel, titleLabelText;
 	JTextArea outputArea;
-	JButton nextButton, lastButton, linkButton;
+	JButton nextButton, lastButton, linkButton, nextPageButton, lastPageButton;
 	JScrollPane scroll;
 	ActionListener blistener;
 	ImageComponent imageDisplay;
 	int entryLevel = 0;
 	ArrayList<Entry> entries;
+	Scraper scrape;
+	String url;
+	Stack<String> lastUrl;
 	
 	private String header = "", summary = "", date = "", link = "";
 	
-	AppFrame()
+	
+	@SuppressWarnings("unchecked")
+	AppFrame(String url)
 	{
+		this.url = url;
+		lastUrl = new Stack<String>();
+		
+		loadPage(this.url);
+		
 		blistener = new ButtonListener();
+		imageDisplay = new ImageComponent();
+		
+		
 		createPanel();
+		
 		createLabels();
+
 		createTextArea();
+		getInfo();
+		createScrollPane();
 		createButton();
 		
 		add(mainPanel);
 	}
 	
-	AppFrame(ArrayList<Entry> entries)
+	@SuppressWarnings("unchecked")
+	private void loadPage(String url)
 	{
-		this.entries = (ArrayList<Entry>) entries.clone();
-		blistener = new ButtonListener();
-		imageDisplay = new ImageComponent();
+		this.url = url;
+		scrape = new Scraper(this.url);
 		
-		header = entries.get(0).getHeader();
-		summary = entries.get(0).getSummary();
-		date = entries.get(0).getDatePosted();
-		link = entries.get(0).getLink();
+		this.entries = (ArrayList<Entry>) scrape.getEntry().clone();
+	}
+	
+	private void getInfo()
+	{
+		header = entries.get(entryLevel).getHeader();
+		summary = entries.get(entryLevel).getSummary();
+		date = entries.get(entryLevel).getDatePosted();
+		link = entries.get(entryLevel).getLink();
 		
-		createPanel();
+		titleLabelText.setText(header);
+		outputArea.setText("Article Summary: \n" + 
+				summary + "\n\nLink to Article: \n" + link);
 		
-		createLabels();
-		createTextArea();
-		createScrollPane();
-		createButton();
-		
-		add(mainPanel);
+		imageDisplay.changeImage("image" + entryLevel + ".jpg");
 	}
 	
 	private void createPanel()
@@ -73,10 +93,12 @@ public class AppFrame extends JFrame
 		
 		titlePanel = new JPanel();
 		buttonPanel = new JPanel();
-		buttonPanel.setLayout(new GridLayout(3,1));
+		buttonPanel.setLayout(new GridLayout(5,1));
 		nextBPanel = new JPanel();
 		lastBPanel = new JPanel();
 		linkBPanel = new JPanel();
+		nextPBPanel = new JPanel();
+		lastPBPanel = new JPanel();
 		
 		imagePanel = new JPanel(new GridLayout(1,1));
 		imagePanel.setBorder(new TitledBorder(new EtchedBorder(), "Image"));
@@ -128,13 +150,23 @@ public class AppFrame extends JFrame
 		linkButton = new JButton("Open");
 		linkButton.addActionListener(blistener);
 		
+		nextPageButton = new JButton("Next Page");
+		nextPageButton.addActionListener(blistener);
+		
+		lastPageButton = new JButton("Last Page");
+		lastPageButton.addActionListener(blistener);
+		
 		nextBPanel.add(nextButton);
 		lastBPanel.add(lastButton);
 		linkBPanel.add(linkButton);
+		nextPBPanel.add(nextPageButton);
+		lastPBPanel.add(lastPageButton);
 		
 		buttonPanel.add(nextBPanel);
 		buttonPanel.add(lastBPanel);
 		buttonPanel.add(linkBPanel);
+		buttonPanel.add(nextPBPanel);
+		buttonPanel.add(lastPBPanel);
 		
 		mainPanel.add(buttonPanel, BorderLayout.EAST);
 	}
@@ -151,16 +183,19 @@ public class AppFrame extends JFrame
 				if(entryLevel < entries.size()-1)
 				{
 					entryLevel++;
-					header = entries.get(entryLevel).getHeader();
-					summary = entries.get(entryLevel).getSummary();
-					date = entries.get(entryLevel).getDatePosted();
-					link = entries.get(entryLevel).getLink();
-
-					titleLabelText.setText(header);
-					outputArea.setText("Article Summary: \n" + 
-							summary + "\n\nLink to Article: \n" + link);
 					
-					imageDisplay.changeImage("image" + entryLevel + ".jpg");
+					getInfo();
+				}
+				else if(entryLevel == entries.size()-1)
+				{
+					lastUrl.add(url);
+					url = scrape.getNextLink();
+					scrape.getNextPost(url);
+					updateEntries();
+					
+					entryLevel = 0;
+					
+					getInfo();
 				}
 			}
 			else if(e.getActionCommand().equals("Last"))
@@ -168,23 +203,26 @@ public class AppFrame extends JFrame
 				if(entryLevel > 0)
 				{
 					entryLevel--;
-					header = entries.get(entryLevel).getHeader();
-					summary = entries.get(entryLevel).getSummary();
-					date = entries.get(entryLevel).getDatePosted();
-					link = entries.get(entryLevel).getLink();
-
-					titleLabelText.setText(header);
-					outputArea.setText("Article Summary: \n" + 
-							summary + "\n\nLink to Article: \n" + link);
 					
-					imageDisplay.changeImage("image" + entryLevel + ".jpg");
+					getInfo();
+				}
+				else if(entryLevel == 0)
+				{
+					if(!lastUrl.isEmpty())
+					{
+						url = lastUrl.pop();
+						scrape.getLastPosts(url);
+						updateEntries();
+						
+						entryLevel = 19;
+						
+						getInfo();
+					}
 				}
 			}
 			else if(e.getActionCommand().equals("Open"))
 			{
 				String url = link;
-				
-				//System.out.println(Desktop.isDesktopSupported());
 				
 				if(Desktop.isDesktopSupported())
 				{
@@ -195,7 +233,6 @@ public class AppFrame extends JFrame
 		            } 
 		            catch (IOException | URISyntaxException ex) 
 		            {
-		                // TODO Auto-generated catch block
 		                ex.printStackTrace();
 		            }
 		        }
@@ -208,13 +245,40 @@ public class AppFrame extends JFrame
 		            } 
 		            catch (IOException ex) 
 		            {
-		                // TODO Auto-generated catch block
 		                ex.printStackTrace();
 		            }
 		        }
 			}
-			
+			else if(e.getActionCommand().equals("Next Page"))
+			{
+				lastUrl.add(url);
+				url = scrape.getNextLink();
+				scrape.getNextPost(url);
+				updateEntries();
+				
+				entryLevel = 0;
+				
+				getInfo();
+			}
+			else if(e.getActionCommand().equals("Last Page"))
+			{
+				if(!lastUrl.isEmpty())
+				{
+					url = lastUrl.pop();
+					scrape.getLastPosts(url);
+					updateEntries();
+					
+					entryLevel = 0;
+					
+					getInfo();
+				}
+			}
 		}
-		
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void updateEntries() 
+	{
+		this.entries = (ArrayList<Entry>) scrape.getEntry().clone();
 	}
 }
