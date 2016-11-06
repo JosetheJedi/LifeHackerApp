@@ -3,9 +3,10 @@ package lifehacker;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.swing.JFrame;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class scrapeLifehacker 
@@ -21,7 +22,9 @@ public class scrapeLifehacker
 		size = media.size();
 		ArrayList<Entry> entries = new ArrayList<Entry>(size);
 		
-		String header = "", summary = "", datePosted = "", link = "";
+
+//		System.out.println(media.get(0).select(".headline").text());
+//		System.out.println(media.get(0).getElementsByTag("source").attr("data-srcset"));
 		
 		for(int i = 0; i < size; i++)
 		{
@@ -30,10 +33,19 @@ public class scrapeLifehacker
 			en.setSummary(media.get(i).getElementsByTag("p").text());
 			en.setDatePosted(media.get(i).select(".updated").text());
 			en.setLink(media.get(i).select("h1 a[href]").attr("abs:href"));
+			en.setImgURL(media.get(i).getElementsByTag("source").attr("data-srcset"));
 			entries.add(en);
 			
-			System.out.println(entries.get(i).toString() + "\n");
+//			System.out.println(media.get(i).getElementsByTag("source").attr("data-srcset"));
+//			System.out.println(entries.get(i).toString() + "\n");
 		}
+		
+		JFrame frame = new AppFrame(entries);
+		
+		frame.setSize(550, 550);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setTitle("Lifehacker");
+		frame.setVisible(true);
 
 	}
 

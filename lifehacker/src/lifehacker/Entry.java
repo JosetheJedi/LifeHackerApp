@@ -2,7 +2,8 @@ package lifehacker;
 
 public class Entry 
 {
-	private String header = "", summary = "", datePosted = "", link = "";
+	private String header = "", summary = "",
+			datePosted = "", link = "", imgURL = "";
 	
 	Entry()
 	{
@@ -49,10 +50,18 @@ public class Entry
 		this.link = link;
 	}
 	
+	public String getImgURL() {
+		return imgURL;
+	}
+
+	public void setImgURL(String imgURL) {
+		this.imgURL = imgURL;
+	}
+
 	public String toString()
 	{
 		return ("Entry title: " + header + "\nSummary: " + summary + "\nDate Posted: " + datePosted
-					+ "\nLink: " + link);
+					+ "\nLink: " + link + "\nImage URL: " + imgURL);
 	}
 	
 	
