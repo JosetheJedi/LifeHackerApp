@@ -1,0 +1,59 @@
+package lifehacker;
+
+public class Entry 
+{
+	private String header = "", summary = "", datePosted = "", link = "";
+	
+	Entry()
+	{
+		
+	}
+
+	public String getHeader() 
+	{
+		return header;
+	}
+
+	public void setHeader(String header) 
+	{
+		this.header = header;
+	}
+
+	public String getSummary() 
+	{
+		return summary;
+	}
+
+	public void setSummary(String summary) 
+	{
+		this.summary = summary;
+	}
+
+	public String getDatePosted() 
+	{
+		return datePosted;
+	}
+
+	public void setDatePosted(String datePosted) 
+	{
+		this.datePosted = datePosted;
+	}
+
+	public String getLink() 
+	{
+		return link;
+	}
+
+	public void setLink(String link) 
+	{
+		this.link = link;
+	}
+	
+	public String toString()
+	{
+		return ("Entry title: " + header + "\nSummary: " + summary + "\nDate Posted: " + datePosted
+					+ "\nLink: " + link);
+	}
+	
+	
+}
