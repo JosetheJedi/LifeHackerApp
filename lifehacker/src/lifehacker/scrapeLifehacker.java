@@ -1,6 +1,12 @@
 package lifehacker;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
@@ -40,13 +46,63 @@ public class scrapeLifehacker
 //			System.out.println(entries.get(i).toString() + "\n");
 		}
 		
+		SaveImage(entries);
+		
 		JFrame frame = new AppFrame(entries);
 		
-		frame.setSize(550, 550);
+		frame.setSize(1000, 1000);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setTitle("Lifehacker");
 		frame.setVisible(true);
 
+	}
+	
+	public static void SaveImage(ArrayList<Entry> entries) throws IOException 
+	{
+		String location = "tmpResources";
+		File dir = new File(location);
+		try
+		{
+		    if(dir.mkdir()) 
+		    { 
+//		    	System.out.println("Directory Created");
+		    } 
+		    else 
+		    {
+//		       System.out.println("Directory is not created");
+		    }
+		} 
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		} 
+		
+		for(int i = 0; i < entries.size(); i++)
+		{	
+			URL url = new URL(entries.get(i).getImgURL());
+			
+			
+			
+			String fileName = "";
+			InputStream in = new BufferedInputStream(url.openStream());
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			byte[] buf = new byte[1024];
+			int n = 0;
+			while (-1!=(n=in.read(buf)))
+			{
+				out.write(buf, 0, n);
+			}
+			out.close();
+			in.close();
+			byte[] response = out.toByteArray();
+			fileName = "image" + i;
+		
+		
+			FileOutputStream fos = new FileOutputStream(location + "/"+ fileName + ".jpg");
+		
+			fos.write(response);
+			fos.close();
+		}
 	}
 
 }

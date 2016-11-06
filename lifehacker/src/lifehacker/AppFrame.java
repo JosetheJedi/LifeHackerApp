@@ -1,6 +1,7 @@
 package lifehacker;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,15 +13,19 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 
 public class AppFrame extends JFrame
 {
-	JPanel mainPanel, titlePanel, buttonPanel, nextBPanel, lastBPanel;
+	JPanel mainPanel, titlePanel, buttonPanel, nextBPanel, lastBPanel,
+				imagePanel;
 	JLabel titleLabel, titleLabelText;
 	JTextArea outputArea;
 	JButton nextButton, lastButton;
 	JScrollPane scroll;
 	ActionListener blistener;
+	ImageComponent imageDisplay;
 	int entryLevel = 0;
 	ArrayList<Entry> entries;
 	
@@ -41,6 +46,7 @@ public class AppFrame extends JFrame
 	{
 		this.entries = (ArrayList<Entry>) entries.clone();
 		blistener = new ButtonListener();
+		imageDisplay = new ImageComponent();
 		
 		header = entries.get(0).getHeader();
 		summary = entries.get(0).getSummary();
@@ -48,6 +54,7 @@ public class AppFrame extends JFrame
 		link = entries.get(0).getLink();
 		
 		createPanel();
+		
 		createLabels();
 		createTextArea();
 		createScrollPane();
@@ -66,12 +73,19 @@ public class AppFrame extends JFrame
 		buttonPanel.setLayout(new GridLayout(2,1));
 		nextBPanel = new JPanel();
 		lastBPanel = new JPanel();
+		
+		imagePanel = new JPanel(new BorderLayout());
+		imagePanel.setBorder(new TitledBorder(new EtchedBorder(), "Image"));
+		imagePanel.add(imageDisplay, BorderLayout.CENTER);
+		
+		mainPanel.add(imagePanel, BorderLayout.CENTER);
 	}
 	
 	private void createLabels()
 	{
 		titleLabel = new JLabel();
 		titleLabelText = new JLabel();
+		
 		titleLabel.setText("Article Title:");
 		titleLabelText.setText(header);
 		
@@ -89,13 +103,14 @@ public class AppFrame extends JFrame
 					summary + "\n\nLink to Article: \n" + link);
 		outputArea.setLineWrap(true);
 		outputArea.setWrapStyleWord(true);
+		
 	}
 	
 	private void createScrollPane()
 	{
 		scroll = new JScrollPane(outputArea);
 		
-		mainPanel.add(scroll, BorderLayout.CENTER);
+		mainPanel.add(scroll, BorderLayout.SOUTH);
 	}
 	
 	private void createButton()
@@ -135,6 +150,8 @@ public class AppFrame extends JFrame
 					titleLabelText.setText(header);
 					outputArea.setText("Article Summary: \n" + 
 							summary + "\n\nLink to Article: \n" + link);
+					
+					imageDisplay.changeImage("image" + entryLevel + ".jpg");
 				}
 			}
 			else if(e.getActionCommand().equals("Last"))
@@ -150,6 +167,8 @@ public class AppFrame extends JFrame
 					titleLabelText.setText(header);
 					outputArea.setText("Article Summary: \n" + 
 							summary + "\n\nLink to Article: \n" + link);
+					
+					imageDisplay.changeImage("image" + entryLevel + ".jpg");
 				}
 			}
 			
